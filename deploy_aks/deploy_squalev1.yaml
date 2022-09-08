@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: squale-demo-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: squale-demo-front
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: squale-demo-front
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: squale-demo-front
+        image: ncsharedacr.azurecr.io/squale:v1
+        ports:
+        - containerPort: 8007
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+        env:
+        - name: VARENVNAME
+          value: "var env value"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: squale-demo-front
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8007
+  selector:
+    app: squale-demo-front
